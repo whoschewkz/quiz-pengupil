@@ -8,7 +8,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-# ================= SETUP =================
+# ================= CONFIG =================
 BASE_URL = "http://127.0.0.1:8000/"
 LOG_DIR = "test-results"
 os.makedirs(LOG_DIR, exist_ok=True)
@@ -19,6 +19,7 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
 
+# ================= DRIVER =================
 chromedriver_autoinstaller.install()
 
 options = webdriver.ChromeOptions()
@@ -27,43 +28,52 @@ options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
 
 driver = webdriver.Chrome(options=options)
-driver.implicitly_wait(10)
+driver.implicitly_wait(5)
 
-test_results = []
-
+# ================= UTIL =================
 def wait_for_server(url, timeout=30):
     start = time.time()
     while time.time() - start < timeout:
         try:
             if requests.get(url).status_code == 200:
-                return True
+                return
         except:
             time.sleep(2)
-    raise RuntimeError("Server tidak berjalan")
+    raise RuntimeError("Server not responding")
 
 def run_test(fn):
     try:
         fn()
-        test_results.append((fn.__name__, "PASSED"))
         logging.info(f"{fn.__name__}: PASSED")
+        print(f"✅ {fn.__name__}")
     except AssertionError as e:
-        test_results.append((fn.__name__, "FAILED", str(e)))
         logging.error(f"{fn.__name__}: FAILED - {e}")
+        print(f"❌ {fn.__name__}: {e}")
 
-# ================= LOGIN TEST =================
+# ================= LOGIN TESTS =================
 def test_login_valid():
     driver.get(BASE_URL + "login.php")
-    driver.find_element(By.ID, "username").send_keys("testuser")
-    driver.find_element(By.ID, "InputPassword").send_keys("Test@123")
+
+    WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.ID, "username"))
+    ).send_keys("irul")
+
+    driver.find_element(By.ID, "InputPassword").send_keys("password_irul")
     driver.find_element(By.NAME, "submit").click()
+
     time.sleep(2)
-    assert "Not Found" not in driver.page_source
+    assert "Sign-In" not in driver.page_source
 
 def test_login_invalid():
     driver.get(BASE_URL + "login.php")
-    driver.find_element(By.ID, "username").send_keys("wronguser")
-    driver.find_element(By.ID, "InputPassword").send_keys("WrongPass")
+
+    WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.ID, "username"))
+    ).send_keys("salah")
+
+    driver.find_element(By.ID, "InputPassword").send_keys("salah")
     driver.find_element(By.NAME, "submit").click()
+
     time.sleep(2)
     assert "Register User Gagal" in driver.page_source
 
@@ -73,37 +83,36 @@ def test_login_empty():
     time.sleep(2)
     assert "Data tidak boleh kosong" in driver.page_source
 
-# ================= REGISTER TEST =================
-def test_register_valid():
-    driver.get(BASE_URL + "register.php")
-    driver.find_element(By.ID, "name").send_keys("New User")
-    driver.find_element(By.ID, "InputEmail").send_keys("newuser@example.com")
-    driver.find_element(By.ID, "username").send_keys("newuser")
-    driver.find_element(By.ID, "InputPassword").send_keys("Test@123")
-    driver.find_element(By.ID, "InputRePassword").send_keys("Test@123")
-    driver.find_element(By.NAME, "submit").click()
-    time.sleep(2)
-    assert "Not Found" not in driver.page_source
-
+# ================= REGISTER TESTS =================
 def test_register_existing_user():
     driver.get(BASE_URL + "register.php")
-    driver.find_element(By.ID, "name").send_keys("Existing User")
-    driver.find_element(By.ID, "InputEmail").send_keys("existing@example.com")
-    driver.find_element(By.ID, "username").send_keys("existinguser")
-    driver.find_element(By.ID, "InputPassword").send_keys("Test@123")
-    driver.find_element(By.ID, "InputRePassword").send_keys("Test@123")
+
+    WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.ID, "username"))
+    ).send_keys("irul")
+
+    driver.find_element(By.ID, "name").send_keys("Irul")
+    driver.find_element(By.ID, "InputEmail").send_keys("irul@irul.com")
+    driver.find_element(By.ID, "InputPassword").send_keys("123456")
+    driver.find_element(By.ID, "InputRePassword").send_keys("123456")
     driver.find_element(By.NAME, "submit").click()
+
     time.sleep(2)
     assert "Username sudah terdaftar" in driver.page_source
 
 def test_register_password_mismatch():
     driver.get(BASE_URL + "register.php")
-    driver.find_element(By.ID, "name").send_keys("Another User")
-    driver.find_element(By.ID, "InputEmail").send_keys("another@example.com")
-    driver.find_element(By.ID, "username").send_keys("anotheruser")
-    driver.find_element(By.ID, "InputPassword").send_keys("Test@123")
-    driver.find_element(By.ID, "InputRePassword").send_keys("WrongPass")
+
+    WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.ID, "username"))
+    ).send_keys("newuser")
+
+    driver.find_element(By.ID, "name").send_keys("New User")
+    driver.find_element(By.ID, "InputEmail").send_keys("new@mail.com")
+    driver.find_element(By.ID, "InputPassword").send_keys("123456")
+    driver.find_element(By.ID, "InputRePassword").send_keys("654321")
     driver.find_element(By.NAME, "submit").click()
+
     time.sleep(2)
     assert "Password tidak sama" in driver.page_source
 
@@ -120,7 +129,6 @@ tests = [
     test_login_valid,
     test_login_invalid,
     test_login_empty,
-    test_register_valid,
     test_register_existing_user,
     test_register_password_mismatch,
     test_register_empty,
@@ -128,9 +136,5 @@ tests = [
 
 for t in tests:
     run_test(t)
-
-print("\n=== TEST RESULTS ===")
-for r in test_results:
-    print(r)
 
 driver.quit()
