@@ -9,6 +9,9 @@ jobs:
   selenium-test:
     runs-on: ubuntu-latest
 
+    env:
+      CI: true
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -18,7 +21,7 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install dependencies
+      - name: Install Python dependencies
         run: |
           pip install selenium pytest
 
@@ -27,12 +30,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y google-chrome-stable
 
-      - name: Start PHP built-in server
+      - name: Start PHP built-in server (PORT 8080)
         run: |
-          php -S 127.0.0.1:8000 > php.log 2>&1 &
+          php -S 127.0.0.1:8080 -t . > php.log 2>&1 &
           sleep 5
-          # Verify server is running
-          curl -f http://127.0.0.1:8000/login.php || (cat php.log && exit 1)
+          curl -f http://127.0.0.1:8080/quiz-pengupil/login.php
 
       - name: Run Login Tests
         run: pytest test_login.py
