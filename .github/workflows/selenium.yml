@@ -29,8 +29,10 @@ jobs:
 
       - name: Start PHP built-in server
         run: |
-          sudo php -S 127.0.0.1:80 > php.log 2>&1 &
-          sleep 3
+          php -S 127.0.0.1:8000 > php.log 2>&1 &
+          sleep 5
+          # Verify server is running
+          curl -f http://127.0.0.1:8000/login.php || (cat php.log && exit 1)
 
       - name: Run Login Tests
         run: pytest test_login.py
