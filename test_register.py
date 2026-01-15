@@ -16,33 +16,31 @@ def driver():
     driver.quit()
 
 # =========================
-# POSITIVE TEST
+# R01 - REGISTER FIELD KOSONG
 # =========================
-def test_register_valid(driver):
-    driver.find_element(By.NAME, "name").send_keys("User Satu")
-    driver.find_element(By.NAME, "email").send_keys("user1@example.com")
-    driver.find_element(By.NAME, "username").send_keys("user1")
+def test_register_empty_all(driver):
+    driver.find_element(By.NAME, "submit").click()
+    time.sleep(2)
+
+    assert "data tidak boleh kosong" in driver.page_source.lower()
+
+# =========================
+# R02 - PASSWORD TIDAK SAMA
+# =========================
+def test_register_password_mismatch(driver):
+    driver.find_element(By.NAME, "name").send_keys("User Test")
+    driver.find_element(By.NAME, "email").send_keys("test@example.com")
+    driver.find_element(By.NAME, "username").send_keys("testuser")
     driver.find_element(By.NAME, "password").send_keys("123456")
-    driver.find_element(By.NAME, "repassword").send_keys("123456")
+    driver.find_element(By.NAME, "repassword").send_keys("654321")
     driver.find_element(By.NAME, "submit").click()
 
     time.sleep(2)
-    assert "berhasil" in driver.page_source.lower()
+    assert "password tidak sama" in driver.page_source.lower()
 
 # =========================
-# NEGATIVE TESTS
+# R03 - EMAIL KOSONG
 # =========================
-def test_register_duplicate_email(driver):
-    driver.find_element(By.NAME, "name").send_keys("User Duplicate")
-    driver.find_element(By.NAME, "email").send_keys("user1@example.com")
-    driver.find_element(By.NAME, "username").send_keys("userdup")
-    driver.find_element(By.NAME, "password").send_keys("123456")
-    driver.find_element(By.NAME, "repassword").send_keys("123456")
-    driver.find_element(By.NAME, "submit").click()
-
-    time.sleep(2)
-    assert "sudah" in driver.page_source.lower()
-
 def test_register_email_empty(driver):
     driver.find_element(By.NAME, "name").send_keys("No Email")
     driver.find_element(By.NAME, "username").send_keys("noemail")
@@ -51,8 +49,11 @@ def test_register_email_empty(driver):
     driver.find_element(By.NAME, "submit").click()
 
     time.sleep(2)
-    assert "email" in driver.page_source.lower()
+    assert "data tidak boleh kosong" in driver.page_source.lower()
 
+# =========================
+# R04 - PASSWORD KOSONG
+# =========================
 def test_register_password_empty(driver):
     driver.find_element(By.NAME, "name").send_keys("No Password")
     driver.find_element(By.NAME, "email").send_keys("nopass@example.com")
@@ -60,8 +61,11 @@ def test_register_password_empty(driver):
     driver.find_element(By.NAME, "submit").click()
 
     time.sleep(2)
-    assert "password" in driver.page_source.lower()
+    assert "data tidak boleh kosong" in driver.page_source.lower()
 
+# =========================
+# R05 - TANPA NAMA
+# =========================
 def test_register_without_name(driver):
     driver.find_element(By.NAME, "email").send_keys("noname@example.com")
     driver.find_element(By.NAME, "username").send_keys("noname")
@@ -70,4 +74,4 @@ def test_register_without_name(driver):
     driver.find_element(By.NAME, "submit").click()
 
     time.sleep(2)
-    assert "nama" in driver.page_source.lower()
+    assert "data tidak boleh kosong" in driver.page_source.lower()

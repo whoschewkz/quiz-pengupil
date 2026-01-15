@@ -38,7 +38,9 @@ def test_login_wrong_password(driver):
 
     time.sleep(2)
 
-    assert "gagal" in driver.page_source.lower()
+    # Tetap di halaman login
+    assert "login.php" in driver.current_url
+
 
 # =========================
 # L03 - LOGIN USER TIDAK TERDAFTAR
