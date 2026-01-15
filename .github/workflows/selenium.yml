@@ -29,7 +29,6 @@ jobs:
 
       - name: Start PHP built-in server
         run: |
-          cd quiz-pengupil
           sudo php -S 127.0.0.1:80 > php.log 2>&1 &
           sleep 3
 
