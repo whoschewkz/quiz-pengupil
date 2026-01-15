@@ -81,8 +81,10 @@ jobs:
       # =========================
       # RUN SELENIUM TESTS
       # =========================
-      - name: Run Selenium Login Tests
-        run: pytest test_login.py
+      
 
       - name: Run Selenium Register Tests
         run: pytest test_register.py
+        
+      - name: Run Selenium Login Tests
+        run: pytest test_login.py
