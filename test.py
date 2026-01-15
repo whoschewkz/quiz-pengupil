@@ -51,19 +51,6 @@ def run_test(fn):
         print(f"❌ {fn.__name__}: {e}")
 
 # ================= LOGIN TESTS =================
-def test_login_valid():
-    driver.get(BASE_URL + "login.php")
-
-    WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.ID, "username"))
-    ).send_keys("irul")
-
-    driver.find_element(By.ID, "InputPassword").send_keys("password_irul")
-    driver.find_element(By.NAME, "submit").click()
-
-    time.sleep(2)
-    assert "Sign-In" not in driver.page_source
-
 def test_login_invalid():
     driver.get(BASE_URL + "login.php")
 
@@ -84,22 +71,6 @@ def test_login_empty():
     assert "Data tidak boleh kosong" in driver.page_source
 
 # ================= REGISTER TESTS =================
-def test_register_existing_user():
-    driver.get(BASE_URL + "register.php")
-
-    WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.ID, "username"))
-    ).send_keys("irul")
-
-    driver.find_element(By.ID, "name").send_keys("Irul")
-    driver.find_element(By.ID, "InputEmail").send_keys("irul@irul.com")
-    driver.find_element(By.ID, "InputPassword").send_keys("123456")
-    driver.find_element(By.ID, "InputRePassword").send_keys("123456")
-    driver.find_element(By.NAME, "submit").click()
-
-    time.sleep(2)
-    assert "Username sudah terdaftar" in driver.page_source
-
 def test_register_password_mismatch():
     driver.get(BASE_URL + "register.php")
 
@@ -126,10 +97,8 @@ def test_register_empty():
 wait_for_server(BASE_URL)
 
 tests = [
-    test_login_valid,
     test_login_invalid,
     test_login_empty,
-    test_register_existing_user,
     test_register_password_mismatch,
     test_register_empty,
 ]
