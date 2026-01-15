@@ -11,7 +11,7 @@ def driver():
     options.add_argument("--disable-dev-shm-usage")
 
     driver = webdriver.Chrome(options=options)
-    driver.get("http://localhost/quiz-pengupil/login.php")
+    driver.get("http://127.0.0.1:8000/login.php")
     yield driver
     driver.quit()
 
