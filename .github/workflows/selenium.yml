@@ -29,7 +29,7 @@ jobs:
 
       - name: Start PHP built-in server
         run: |
-          php -S 127.0.0.1:8000 > php.log 2>&1 &
+          sudo php -S 127.0.0.1:80 > php.log 2>&1 &
           sleep 3
 
       - name: Run Login Tests
